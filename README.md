@@ -3,6 +3,7 @@
 โปรเจกต์ฝึกสร้างเครื่องมือ Cloud Cost Management แบบ Datadog จาก AWS CUR 2.0
 
 - แผนทั้งหมด: [`docs/ROADMAP.md`](docs/ROADMAP.md)
+- สิ่งที่คุยกันมาก่อนหน้า: [`docs/HANDOFF.md`](docs/HANDOFF.md)
 - เริ่มที่: Phase 0 แล้วต่อด้วย [`exercises/phase1.sql`](exercises/phase1.sql)
 
 ## Quickstart
