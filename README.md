@@ -2,9 +2,12 @@
 
 โปรเจกต์ฝึกสร้างเครื่องมือ Cloud Cost Management แบบ Datadog จาก AWS CUR 2.0
 
+แต่ละโปรเจกต์ใช้เงินจริงเท่าไร เมื่อ resource ใช้ร่วมกันและ tag ไม่มีผลย้อนหลัง
+(dbt-duckdb, SCD2 retroactive tagging, shared-cost allocation)
+
 - แผนทั้งหมด: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - สิ่งที่คุยกันมาก่อนหน้า: [`docs/HANDOFF.md`](docs/HANDOFF.md)
-- เริ่มที่: Phase 0 แล้วต่อด้วย [`exercises/phase1.sql`](exercises/phase1.sql)
+- เริ่มที่: Phase 0 ใน roadmap (วอร์ม SQL ด้วย [`exercises/phase1.sql`](exercises/phase1.sql) ได้ถ้าอยาก)
 
 ## Quickstart
 

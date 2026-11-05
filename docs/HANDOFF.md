@@ -3,6 +3,10 @@
 สรุปจากแชทใน Claude app (21–22 ต.ค. 2026) ก่อนย้ายมาทำใน Claude Code
 อ่านไฟล์นี้คู่กับ `CLAUDE.md` และ `docs/ROADMAP.md`
 
+> **อัปเดต 5 พ.ย. 2026: เปลี่ยนแผน** — ดูส่วน "แผนใหม่ (5 พ.ย. 2026)" ด้านล่างก่อน
+> แผนเดิม (Phase 0–6 แบบมี API + frontend) ย้ายไปเก็บที่ `docs/archive/ROADMAP_v1.md`
+> ส่วนอื่นของไฟล์นี้ยังเป็นบันทึกเดิม เก็บไว้เป็นประวัติและ research
+
 ## ใครทำอะไร
 
 - **คนตั้งโจทย์** คือแฟนของคนทำ เป็นคนเริ่มแชท ขอ dataset และ roadmap
@@ -30,19 +34,48 @@
 - เริ่มด้วย **DuckDB + Parquet** ค่อยพิจารณา ClickHouse เมื่อข้อมูลใหญ่หรือมีผู้ใช้หลายคน
 - `ANSWER_KEY.md` (เฉลยเรื่องที่ซ่อนในข้อมูล) **ตั้งใจไม่ใส่ไว้ใน repo** และอยู่ใน `.gitignore`
 
-## เรื่องที่ยังค้าง (ยังไม่ได้แก้ในไฟล์)
+## แผนใหม่ (5 พ.ย. 2026)
 
-ข้อเสนอที่ยังรอคนทำโปรเจกต์ตัดสินใจ เพราะมาจากสาย data:
+คนทำโปรเจกต์สรุปแผนของตัวเองกับ AI อีกห้อง (4 พ.ย.) แล้วตัดสินใจใช้แผนนั้นเป็นหลัก
+แผนเดิมในไฟล์นี้เป็นของคนตั้งโจทย์ (สามี)
 
-- [ ] **Phase 4 เปลี่ยนจาก React เป็น Streamlit** (หรือ Evidence.dev / Grafana / Superset)
-      เก็บ React ไว้เป็นทางเลือกเสริม ทำได้ทีหลังเพราะ API จาก Phase 3 แยกหน้าบ้านออกอยู่แล้ว
-- [ ] **ปรับ timeline**: ย่น Phase 1–2 (ฝั่ง data น่าจะเร็วกว่าแผน) เอาเวลาไปเพิ่ม Phase 5
-      และศึกษา domain billing (SP/RI, amortized cost, allocation) ให้ลึกขึ้น
-- [ ] **ปรับ `CLAUDE.md`**: ช่วยเต็มที่เรื่อง frontend/boilerplate (ไม่ต้องทำตัวเป็น mentor ส่วนนั้น)
-      แต่ยังใบ้อย่างเดียวสำหรับโจทย์ data ใน `exercises/`
-- [ ] (ทางเลือก) เพิ่ม `docs/REFERENCES.md` รวม open source ด้านล่าง
-- [ ] (ทางเลือก) จำลอง EKS split cost allocation (`split_line_item_*`) ใน generator เมื่อถึง Phase 5 ข้อ container cost
-- [ ] (ทางเลือก) push repo ขึ้น GitHub
+- **เป้าหมาย**: พอร์ตโฟลิโอสายดาต้า (อาจต่อยอดเป็นโปรดักต์) จากปัญหาจริงของสามี
+  ซึ่งเป็น IT manager ดูแลคลาวด์ของบริษัทใหญ่ในไทย: ไม่รู้ว่าแต่ละโปรเจกต์ใช้เงินเท่าไร
+  เพราะมี resource ใช้ร่วมกัน, และ tag ไม่มีผลย้อนหลัง
+- **ไม่มีชั้น API** — dbt เขียนตารางรายงาน แดชบอร์ดอ่านตรง
+- **แกนหลัก**: dbt-duckdb บน Parquet → tag ย้อนหลังแบบ SCD2 → กฎหาร shared cost
+  (เท่ากัน / ตามสัดส่วน / ตามปริมาณใช้จริง) → test ว่ายอดหลังหาร = ยอดบิล
+- **แสดงผล**: แดชบอร์ดสำเร็จรูป (Evidence หรือ Metabase ยังไม่ไฟนอล; roadmap แนะนำ Evidence เพราะทำบน iPad ได้)
+  + Streamlit เขียนเอง 2 หน้า: ตั้งกฎการหาร, ตรวจย้อนกลับ
+- **เวลา**: เสาร์อาทิตย์เต็มวัน, วันธรรมดา 1–2 ชม., ส่วนใหญ่ใช้ iPad/มือถือ → ทำงานผ่าน Claude Code บนเว็บหรือ Codespaces
+- ข้อมูลจำลองเดิมยังใช้ต่อ แต่ต้องเพิ่ม seed เรื่องโปรเจกต์, ownership ที่เปลี่ยนกลางทาง และ usage driver
+- ห้ามใช้บิลจริงของบริษัทสามีโดยไม่ได้รับอนุญาต
+
+Phase ใหม่ (รายละเอียดใน `docs/ROADMAP.md`):
+0 ตั้งเครื่องมือ → 1 staging + effective cost + กระทบยอด → 2 tag ย้อนหลัง SCD2
+→ 3 หาร shared cost → 4 แดชบอร์ด + Streamlit 2 หน้า → 5 ทำเป็นพอร์ต → 6 ต่อยอด
+
+### เรื่องที่ยังค้าง
+
+- [ ] เลือก Evidence หรือ Metabase (ตัดสินใจตอนเริ่ม Phase 4 ก็ได้)
+- [ ] push repo ขึ้น GitHub
+- [ ] ถามสามี:
+  - เรื่องหลักอีกเรื่องที่ยังจำไม่ได้คืออะไร
+  - มุมมองไหนที่อยากเห็นแต่แดชบอร์ดของ AWS ทำไม่ได้
+  - เครื่องมือที่เคยลอง แต่ละตัวขาดอะไร
+  - ทุกวันนี้หาร shared cost ยังไง ใช้เวลาเดือนละกี่ชั่วโมง
+  - ใครอ่านรายงาน เอาไปตัดสินใจเรื่องอะไร
+  - มีค่าใช้จ่ายอื่นปนไหม (ไลเซนส์, AI API, ตัวแทนจำหน่าย, on-prem)
+  - ใช้ Kubernetes cluster ร่วมกันหลายโปรเจกต์ไหม
+  - มีกี่บัญชี กี่โปรเจกต์ บริการอะไรที่ใช้ร่วมกัน
+
+### เรื่องค้างจากแผนเดิม (ปิดแล้ว)
+
+- [x] ~~Phase 4 เปลี่ยนจาก React เป็น Streamlit~~ → แทนด้วยแดชบอร์ดสำเร็จรูป + Streamlit 2 หน้า
+- [x] ~~ปรับ timeline~~ → roadmap ใหม่
+- [x] ~~ปรับ `CLAUDE.md`~~ → ทำแล้ว 5 พ.ย.
+- [ ] (ทางเลือก) `docs/REFERENCES.md` รวม open source ด้านล่าง
+- [ ] (ทางเลือก) จำลอง EKS split cost allocation (`split_line_item_*`) ถ้าทำเรื่อง Kubernetes ใน Phase 6
 
 ## สิ่งที่รู้เกี่ยวกับ dataset
 
@@ -94,11 +127,11 @@
 - ฐานข้อมูล column-oriented สำหรับงาน OLAP aggregate ข้อมูลพันล้านแถวได้ระดับวินาที บีบอัดดีมาก
 - UPDATE/DELETE ทีละแถวไม่ดี → ใช้ engine ตระกูล MergeTree
   (`ReplacingMergeTree`, `CollapsingMergeTree`, `SummingMergeTree`) จัดการแทน
-- ใน roadmap: DuckDB ใช้ Phase 1–2, ClickHouse ช่วงปลาย Phase 2 หรือ Phase 6, Postgres เก็บข้อมูล app
+- ใน roadmap เดิม (v1): DuckDB ใช้ Phase 1–2, ClickHouse ช่วงปลาย Phase 2 หรือ Phase 6, Postgres เก็บข้อมูล app
 - ลองได้โดยไม่ต้องตั้ง server: `clickhouse local -q "... FROM file('data/cur2_sample.parquet') ..."`
 
 ## จุดเริ่มต้นที่แนะนำ
 
-1. ตัดสินใจเรื่องที่ค้าง (Streamlit, timeline) แล้วอัปเดต `docs/ROADMAP.md` + `CLAUDE.md`
-2. Phase 0: อ่านเรื่อง line item type และ unblended / net / amortized
-3. Phase 1: `exercises/phase1.sql` 10 ข้อ
+1. Phase 0 ใน `docs/ROADMAP.md`: push ขึ้น GitHub, `dbt init` ด้วย dbt-duckdb, ตั้ง CI
+2. ระหว่างนั้นถามสามีตามรายการด้านบน
+3. Phase 1: โมเดล staging ตัวแรก + test กระทบยอด
