@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: stg_cur__line_items
+    description: CUR 2.0 line items (ยังเป็น pass-through รอทำในเฟส 1)

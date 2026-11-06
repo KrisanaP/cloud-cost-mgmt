@@ -2,3 +2,5 @@ pandas>=2.0
 numpy>=1.24
 pyarrow>=14
 duckdb>=1.0
+dbt-core>=1.10,<2
+dbt-duckdb>=1.9,<2

@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: cur
+    description: ไฟล์ AWS CUR 2.0 (ตอนนี้เป็นข้อมูลจำลองใน data/)
+    meta:
+      external_location: "../data/{name}.parquet"
+    tables:
+      - name: cur2_sample
+        description: CUR 2.0 จำลอง ก.ค.–ก.ย. 2026, รายวัน, UTC, USD
+        columns:
+          - name: identity_line_item_id
+            data_tests:
+              - not_null
+          - name: line_item_usage_start_date
+            data_tests:
+              - not_null
+          - name: line_item_line_item_type
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: [Usage, SavingsPlanCoveredUsage, SavingsPlanNegation, SavingsPlanRecurringFee,
+                             DiscountedUsage, RIFee, Tax, Fee, Credit, Refund]
