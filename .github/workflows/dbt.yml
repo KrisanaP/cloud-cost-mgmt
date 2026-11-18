@@ -19,3 +19,6 @@ jobs:
           cache: pip
       - run: pip install -r ../requirements.txt
       - run: dbt build --profiles-dir .
+      - name: Simulate restatement (rewrite September, totals must not double)
+        working-directory: .
+        run: bash scripts/simulate_restatement.sh

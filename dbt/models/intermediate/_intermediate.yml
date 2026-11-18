@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: int_cost__effective
+    description: staging + effective_cost (amortized) + cost_class ต่อ line item
+    columns:
+      - name: line_item_id
+        data_tests: [unique, not_null]
+      - name: effective_cost
+        data_tests: [not_null]
+      - name: cost_class
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [direct, commitment_offset, commitment_unused, tax, support, credit, fee]

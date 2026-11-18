@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: fct_cost_line_item
+    description: >
+      ตารางหลัก 1 แถว = 1 line item มี unblended, net, effective และ cost_class.
+      incremental แบบ delete+insert ตาม billing_period เพื่อรองรับ restatement.
+      ใช้ effective_cost เป็นฐานของการคิดต้นทุนให้โปรเจกต์ (ดู docs/decisions/0001-effective-cost.md)
+    columns:
+      - name: line_item_id
+        data_tests: [unique, not_null]
+      - name: billing_period
+        data_tests: [not_null]
+      - name: effective_cost
+        data_tests: [not_null]
+      - name: cost_class
+        description: direct / commitment_offset / commitment_unused / tax / support / credit / fee
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [direct, commitment_offset, commitment_unused, tax, support, credit, fee]
+
+  - name: fct_cost_daily
+    description: สรุปรายวัน × account × service × resource × cost_class สำหรับรายงาน
+    columns:
+      - name: usage_date
+        data_tests: [not_null]
+      - name: resource_key
+        data_tests: [not_null]
