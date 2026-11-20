@@ -38,6 +38,8 @@ scripts/gen_cur2.py      generator — แก้ CATALOG / quantity() เพื�
 exercises/phase1.sql     โจทย์ SQL วอร์มอัป (ทางเลือก, เติมคำตอบเอง)
 dbt/                     โปรเจกต์ dbt-duckdb (staging → intermediate → marts, tests/ กระทบยอด)
 docs/decisions/          บันทึกการตัดสินใจ (เช่น ทำไมใช้ effective cost)
+docs/articles/           ร่างบทความ 3 ตอน (Phase 5)
+README.md / README.th.md README อังกฤษ (หน้าพอร์ต) / ไทย
 scripts/simulate_restatement.sh  จำลอง AWS เขียนทับเดือนเดิม แล้วตรวจว่ายอดไม่ซ้ำ
 scripts/gen_usage_drivers.py     สร้าง dbt/seeds/usage_drivers.csv (ปริมาณใช้ EKS ต่อโปรเจกต์ ใช้หาร shared cost)
 scripts/export_marts.py          ส่งออก marts เป็น Parquet ให้ Evidence
