@@ -1,0 +1,1 @@
+select billing_period, rule_id, any_value(rule_name) as rule_name, any_value(method) as method, project_id, sum(allocated_cost) as allocated_cost from read_parquet('data/mart_allocation_audit.parquet') where cost_type = 'shared' group by all

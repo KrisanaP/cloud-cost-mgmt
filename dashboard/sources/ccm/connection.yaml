@@ -1,0 +1,5 @@
+# DuckDB ในหน่วยความจำ อ่าน Parquet ที่ scripts/export_marts.py ส่งออกจาก dbt
+name: ccm
+type: duckdb
+options:
+  filename: ":memory:"
