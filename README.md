@@ -1,32 +1,88 @@
 # cloud-cost-mgmt
 
-โปรเจกต์ฝึกสร้างเครื่องมือ Cloud Cost Management แบบ Datadog จาก AWS CUR 2.0
+[![dbt build](https://github.com/KrisanaP/cloud-cost-mgmt/actions/workflows/dbt.yml/badge.svg)](https://github.com/KrisanaP/cloud-cost-mgmt/actions/workflows/dbt.yml)
+[![dashboard](https://github.com/KrisanaP/cloud-cost-mgmt/actions/workflows/dashboard.yml/badge.svg)](https://github.com/KrisanaP/cloud-cost-mgmt/actions/workflows/dashboard.yml)
+![dbt tests](https://img.shields.io/badge/dbt%20tests-78-blue)
+![pytest](https://img.shields.io/badge/pytest-8-blue)
 
-แต่ละโปรเจกต์ใช้เงินจริงเท่าไร เมื่อ resource ใช้ร่วมกันและ tag ไม่มีผลย้อนหลัง
-(dbt-duckdb, SCD2 retroactive tagging, shared-cost allocation)
+**How much does each project really spend on AWS, when resources are shared and tags are late or wrong?**
 
-- แผนทั้งหมด: [`docs/ROADMAP.md`](docs/ROADMAP.md)
-- สิ่งที่คุยกันมาก่อนหน้า: [`docs/HANDOFF.md`](docs/HANDOFF.md)
-- เริ่มที่: Phase 0 ใน roadmap (วอร์ม SQL ด้วย [`exercises/phase1.sql`](exercises/phase1.sql) ได้ถ้าอยาก)
+A mini cloud cost management tool (in the spirit of Datadog CCM) built on **dbt + DuckDB** over a simulated
+AWS Cost and Usage Report (CUR 2.0). Every dollar on the bill ends up on a project, and a test proves the
+allocated total equals the bill to the cent, every month.
 
-## Quickstart
+[ภาษาไทย](README.th.md) · [Roadmap](docs/ROADMAP.md) · [Design decisions](docs/decisions/) · [Articles](docs/articles/)
+
+## The problem
+
+| Pain | What usually happens | What this project does |
+| --- | --- | --- |
+| Savings Plans and RIs are paid in a monthly fee line | The buying account looks expensive, the teams using them look free | **Effective (amortized) cost** moves commitment cost onto the usage lines that consumed it |
+| Tags are not retroactive | A resource tagged in September is "unowned" for July and August forever | **SCD2 ownership overrides** with valid-from / valid-to; fix one seed row and history is recomputed |
+| Shared resources (EKS cluster, network, support, tax) | Dumped into "shared" or split by gut feeling | **Versioned allocation rules**: even, fixed %, proportional to direct cost, or usage driver (vCPU-hours), with step-down |
+| Rounding | Splitting $10 three ways gives $9.99 | **Largest remainder** allocation, so totals match exactly |
+| AWS rewrites the current month several times a day | Appending duplicates cost | **Incremental delete+insert** by billing period, tested with a simulated restatement |
+
+## Architecture
+
+```
+data/cur2_sample.parquet          simulated CUR 2.0 (Jul–Sep 2026, 7 accounts, 28k line items)
+        │
+        ▼  dbt (DuckDB)
+staging        stg_cur__line_items, stg_cur__resource_tags        typed, renamed, tags exploded + normalized
+intermediate   int_cost__effective                                 amortized cost + cost_class
+               int_cost__attributed                                override > tag > account default > unattributed
+               int_alloc__pools / __shares                         rule matching, step-down basis, largest remainder
+marts          fct_cost_line_item (incremental)  fct_cost_attributed  fct_cost_allocated (line item × project)
+               mart_project_cost_monthly / _daily, mart_attribution_coverage, mart_allocation_audit
+seeds          projects, tag_project_map, resource_ownership (SCD2), account_default_project,
+               allocation_rules (+ targets), usage_drivers
+snapshot       snap_resource_ownership                             who changed ownership, and when
+        │
+        ├──▶ Evidence dashboard (dashboard/)    overview, project detail, unattributed coverage
+        └──▶ Streamlit (streamlit_app/)         edit allocation rules with preview; audit any dollar back to bill lines
+```
+
+No API layer: dbt writes report tables, the dashboard and Streamlit read them directly.
+
+## What the tests guarantee
+
+- Raw file = staging = fact = daily mart, per billing period, for unblended, net and effective cost
+- Every Savings Plan / RI fee = cost moved to usage + unused part
+- Attribution never adds or drops a row or a cent; ownership date ranges never overlap
+- After allocation, each bill line sums back to its original cost, and **the monthly allocated total equals the bill**
+- Fixed percentages sum to 100, no rule allocates back into a shared pool, no line matches two rules at the same step
+- Unit tests cover mid-month ownership moves, late tags, and each allocation method
+- A restatement run rewrites September and checks nothing is duplicated
+
+## Run it
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-duckdb -c "SELECT line_item_product_code, round(sum(line_item_unblended_cost),2) AS cost
-           FROM 'data/cur2_sample.parquet' GROUP BY 1 ORDER BY 2 DESC LIMIT 10"
+
+cd dbt && dbt build --profiles-dir . && cd ..       # models + 78 data/unit tests
+bash scripts/simulate_restatement.sh                 # AWS rewrites a month; totals must not double
+pytest -q tests                                      # Streamlit rule validation + page smoke tests
+streamlit run streamlit_app/Home.py                  # rules editor + audit trail
+
+python3 scripts/export_marts.py                      # dashboard data (Parquet)
+cd dashboard && npm install && npm run sources && npm run dev
 ```
 
-รัน dbt (เฟส 0 ขึ้นไป):
+## Screenshots
 
-```bash
-cd dbt && dbt build --profiles-dir .
-```
+| Audit: where did this project's money come from? | Allocation rules editor |
+| --- | --- |
+| ![audit](docs/img/streamlit_audit.png) | ![rules](docs/img/streamlit_rules.png) |
 
-ใช้กับ Claude Code: เปิดเทอร์มินัลในโฟลเดอร์นี้แล้วพิมพ์ `claude` — บริบทของโปรเจกต์อยู่ใน `CLAUDE.md`
+## Data
 
-## ข้อมูล
+`data/cur2_sample.*` is **simulated**, not a real bill, generated by `scripts/gen_cur2.py`
+(1 Jul – 30 Sep 2026, 7 accounts, 50+ AWS services, approximate prices). It deliberately contains a few
+real-world problems to find. Usage drivers for the shared EKS cluster are simulated by
+`scripts/gen_usage_drivers.py`; in production they would come from CloudWatch Container Insights or OpenCost.
 
-`data/cur2_sample.*` เป็นข้อมูลจำลอง (ไม่ใช่บิลจริง) สร้างจาก `scripts/gen_cur2.py`
-ช่วง 1 ก.ค. – 30 ก.ย. 2026, 7 บัญชี, 50+ บริการ AWS ราคาเป็นค่าประมาณ
+## Stack
+
+dbt-core 1.12 · dbt-duckdb · DuckDB · Evidence · Streamlit · GitHub Actions

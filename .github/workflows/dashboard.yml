@@ -1,10 +1,24 @@
 name: dashboard
 
+# build dbt -> test -> Evidence + dbt docs -> (main เท่านั้น) ฝากบน GitHub Pages
+# เว็บ:  https://krisanap.github.io/cloud-cost-mgmt/          แดชบอร์ด Evidence
+#        https://krisanap.github.io/cloud-cost-mgmt/dbt-docs/  dbt docs + lineage graph
+# ต้องเปิด Settings > Pages > Source = GitHub Actions ก่อน (repo private ต้องใช้ GitHub แบบเสียเงิน)
+
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -26,6 +40,9 @@ jobs:
         run: dbt build --profiles-dir .
       - name: Streamlit tests
         run: pytest -q tests
+      - name: dbt docs (single static file)
+        working-directory: dbt
+        run: dbt docs generate --profiles-dir . --static
       - name: Export marts for Evidence
         run: python scripts/export_marts.py
       - name: Evidence build
@@ -34,7 +51,23 @@ jobs:
           npm ci
           npm run sources
           npm run build
-      - uses: actions/upload-artifact@v4
+      - name: Assemble site
+        run: |
+          mkdir -p site
+          cp -r dashboard/build/cloud-cost-mgmt/. site/ 2>/dev/null || cp -r dashboard/build/. site/
+          mkdir -p site/dbt-docs
+          cp dbt/target/static_index.html site/dbt-docs/index.html
+      - uses: actions/upload-pages-artifact@v3
         with:
-          name: dashboard-site
-          path: dashboard/build
+          path: site
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
