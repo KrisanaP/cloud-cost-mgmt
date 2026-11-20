@@ -1,0 +1,8 @@
+rule_id,rule_version,rule_name,step,pool_project_id,pool_cost_class,pool_product_code,pool_account_id,method,driver_metric,valid_from,valid_to,changed_by,changed_at
+eks,1,EKS cluster กลาง หารตาม vCPU-hours,1,eks-platform,,,,usage_driver,vcpu_hours,2026-01-01,,lulu,2026-11-20
+network,1,Shared network หารตามต้นทุนตรง,1,shared-infra,,,,proportional_direct,,2026-01-01,,lulu,2026-11-20
+sp_unused,1,Savings Plan ส่วนที่ใช้ไม่หมด หารตามต้นทุนตรง,1,unattributed,commitment_unused,ComputeSavingsPlans,,proportional_direct,,2026-01-01,,lulu,2026-11-20
+rds_ri_unused,1,RDS RI ส่วนที่ใช้ไม่หมด ทีม payments ซื้อ แบ่งตาม % ที่ตกลงกัน,1,unattributed,commitment_unused,AmazonRDS,,fixed_pct,,2026-01-01,,lulu,2026-11-20
+support,1,AWS Support หารตามยอดหลังหารขั้น 1,2,unattributed,support,,,proportional_direct,,2026-01-01,,lulu,2026-11-20
+tax,1,Tax หารตามยอดหลังหารขั้น 1,2,unattributed,tax,,,proportional_direct,,2026-01-01,,lulu,2026-11-20
+credit,1,Credit/Refund แบ่งเท่ากันทุกโปรเจกต์,2,unattributed,credit,,,even,,2026-01-01,,lulu,2026-11-20

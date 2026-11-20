@@ -1,0 +1,3 @@
+rule_id,rule_version,project_id,pct
+rds_ri_unused,1,payment-api,60
+rds_ri_unused,1,ledger,40
