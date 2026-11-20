@@ -39,6 +39,7 @@ exercises/phase1.sql     โจทย์ SQL วอร์มอัป (ทาง
 dbt/                     โปรเจกต์ dbt-duckdb (staging → intermediate → marts, tests/ กระทบยอด)
 docs/decisions/          บันทึกการตัดสินใจ (เช่น ทำไมใช้ effective cost)
 scripts/simulate_restatement.sh  จำลอง AWS เขียนทับเดือนเดิม แล้วตรวจว่ายอดไม่ซ้ำ
+scripts/gen_usage_drivers.py     สร้าง dbt/seeds/usage_drivers.csv (ปริมาณใช้ EKS ต่อโปรเจกต์ ใช้หาร shared cost)
 dashboard/ streamlit_app/   (ยังไม่สร้าง จะมาใน Phase 4)
 ```
 

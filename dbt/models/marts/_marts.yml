@@ -43,3 +43,26 @@ models:
 
   - name: fct_project_cost_monthly
     description: billing period × project × cost_class × attribution_source
+
+  - name: fct_cost_allocated
+    description: >
+      1 แถว = line item × project หลังหาร shared cost (Phase 3) มี allocated_cost, rule_id, rule_version,
+      share_pct, is_shared, original_project_id ตารางหลักของหน้าตรวจย้อนกลับ
+    columns:
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+      - name: allocation_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [direct, allocated, no_basis]
+    data_tests:
+      - dbt_utils_free_unique_combination:
+          arguments:
+            columns: [line_item_id, project_id]
+
+  - name: fct_project_cost_allocated_monthly
+    description: billing period × project × cost_source (direct หรือ rule_id ที่ส่งเงินมา)

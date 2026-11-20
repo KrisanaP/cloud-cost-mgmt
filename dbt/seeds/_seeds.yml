@@ -64,3 +64,65 @@ seeds:
       - assert_no_overlapping_ranges:
           arguments:
             key: resource_id
+
+  - name: allocation_rules
+    description: >
+      กฎหาร shared cost (Streamlit จะเขียนไฟล์นี้ใน Phase 4) 1 แถว = 1 เวอร์ชันของกฎ ช่วงวัน [valid_from, valid_to)
+      ตัวกรอง pool_* ว่าง = ไม่กรอง; step = ลำดับการหารแบบขั้นบันได
+    config:
+      column_types:
+        rule_id: varchar
+        rule_version: integer
+        step: integer
+        pool_project_id: varchar
+        pool_cost_class: varchar
+        pool_product_code: varchar
+        pool_account_id: varchar
+        method: varchar
+        driver_metric: varchar
+        valid_from: date
+        valid_to: date
+        changed_at: date
+    columns:
+      - name: method
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [even, fixed_pct, proportional_direct, usage_driver]
+      - name: step
+        data_tests: [not_null]
+      - name: pool_project_id
+        data_tests:
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+    data_tests:
+      - dbt_utils_free_unique_combination:
+          arguments:
+            columns: [rule_id, rule_version]
+      - assert_no_overlapping_ranges:
+          arguments:
+            key: rule_id
+
+  - name: allocation_rule_targets
+    description: โปรเจกต์ที่ร่วมหารของแต่ละกฎ (+ pct สำหรับ fixed_pct) ถ้ากฎไม่มีแถวที่นี่ = ทุกโปรเจกต์ที่รับส่วนแบ่งได้
+    config:
+      column_types: {rule_id: varchar, rule_version: integer, project_id: varchar, pct: double}
+    columns:
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+
+  - name: usage_drivers
+    description: ปริมาณใช้ shared resource ต่อวัน × โปรเจกต์ (จำลองด้วย scripts/gen_usage_drivers.py ของจริงมาจาก CloudWatch/OpenCost)
+    config:
+      column_types: {usage_date: date, driver_metric: varchar, project_id: varchar, quantity: double}
+    columns:
+      - name: project_id
+        data_tests:
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+      - name: quantity
+        data_tests: [not_null]

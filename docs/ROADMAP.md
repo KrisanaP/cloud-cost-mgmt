@@ -185,10 +185,10 @@ Shared cost ในข้อมูลจำลองที่ใช้ฝึก�
 
 dbt tests ที่ต้องมี
 
-- [ ] `assert_allocation_conserves_cost` — ต่อวัน ต่อก้อน: ยอดหลังหาร = ยอดก่อนหาร
-- [ ] `fixed_pct` ของแต่ละกฎรวมกัน = 100%
-- [ ] ไม่มี `allocated_cost` ติดลบ ยกเว้นบรรทัด credit/refund
-- [ ] ยอดรวม `fct_cost_allocated` ทั้งเดือน = ยอดบิลทั้งเดือน (test เดียวที่สำคัญที่สุดของโปรเจกต์)
+- [x] `assert_allocation_conserves_cost` — ต่อวัน ต่อก้อน: ยอดหลังหาร = ยอดก่อนหาร
+- [x] `fixed_pct` ของแต่ละกฎรวมกัน = 100%
+- [x] ไม่มี `allocated_cost` ติดลบ ยกเว้นบรรทัด credit/refund
+- [x] ยอดรวม `fct_cost_allocated` ทั้งเดือน = ยอดบิลทั้งเดือน (test เดียวที่สำคัญที่สุดของโปรเจกต์)
 
 ## Phase 4 — แสดงผล (2–3 สัปดาห์)
 

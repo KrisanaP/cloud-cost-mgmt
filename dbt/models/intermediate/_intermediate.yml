@@ -33,6 +33,25 @@ models:
               arguments:
                 values: [override, tag, account_default, unattributed]
 
+  - name: int_alloc__pools
+    description: บรรทัด shared cost ที่เข้ากฎ 1 แถว = 1 line item (กฎขั้นต่ำสุดที่เข้า)
+    columns:
+      - name: line_item_id
+        data_tests: [unique, not_null]
+
+  - name: int_alloc__direct_basis
+    description: ต้นทุนตรงต่อวันของโปรเจกต์ที่รับส่วนแบ่งได้ ใช้เป็นฐาน proportional_direct ขั้น 1
+
+  - name: int_alloc__shares
+    description: ส่วนแบ่งต่อ pool line × project หลัง largest remainder
+    columns:
+      - name: allocated_cost
+        data_tests: [not_null]
+    data_tests:
+      - dbt_utils_free_unique_combination:
+          arguments:
+            columns: [line_item_id, project_id]
+
 unit_tests:
   - name: attribution_rules_and_date_ranges
     description: >
@@ -81,3 +100,52 @@ unit_tests:
         - {line_item_id: c2, project_id: ml,           attribution_source: tag}
         - {line_item_id: d1, project_id: unattributed, attribution_source: unattributed}
         - {line_item_id: f1, project_id: ml,           attribution_source: tag}
+
+  - name: alloc_even_fixed_driver_and_step_down
+    description: >
+      $10 แบ่งเท่ากัน 3 โปรเจกต์ (เศษ 1 สตางค์ไปที่ A) / fixed 60:40 / ตาม driver /
+      ขั้น 2 หารตามต้นทุนตรง + ส่วนที่ได้จากขั้น 1 พร้อม largest remainder ที่ precision 2
+    model: int_alloc__shares
+    overrides:
+      vars: {alloc_precision: 2}
+    given:
+      - input: ref('int_alloc__pools')
+        rows:
+          - {line_item_id: L1, usage_date: 2026-07-01, window_start: 2026-07-01, window_end: 2026-07-02, pool_cost: 10, rule_id: r_even, rule_version: 1, step: 1, method: even}
+          - {line_item_id: L2, usage_date: 2026-07-01, window_start: 2026-07-01, window_end: 2026-07-02, pool_cost: 40, rule_id: r_drv, rule_version: 1, step: 1, method: usage_driver, driver_metric: vcpu_hours}
+          - {line_item_id: L3, usage_date: 2026-07-01, window_start: 2026-07-01, window_end: 2026-07-02, pool_cost: 100, rule_id: r_prop, rule_version: 1, step: 2, method: proportional_direct}
+          - {line_item_id: L4, usage_date: 2026-07-01, window_start: 2026-07-01, window_end: 2026-07-02, pool_cost: 1, rule_id: r_fix, rule_version: 1, step: 3, method: fixed_pct}
+      - input: ref('projects')
+        rows:
+          - {project_id: A, is_shared: false}
+          - {project_id: B, is_shared: false}
+          - {project_id: C, is_shared: false}
+          - {project_id: S, is_shared: true}
+          - {project_id: unattributed, is_shared: false}
+      - input: ref('allocation_rule_targets')
+        rows:
+          - {rule_id: r_even, rule_version: 1, project_id: A, pct: null}
+          - {rule_id: r_even, rule_version: 1, project_id: B, pct: null}
+          - {rule_id: r_even, rule_version: 1, project_id: C, pct: null}
+          - {rule_id: r_fix,  rule_version: 1, project_id: A, pct: 60}
+          - {rule_id: r_fix,  rule_version: 1, project_id: B, pct: 40}
+      - input: ref('int_alloc__direct_basis')
+        rows:
+          - {usage_date: 2026-07-01, project_id: A, basis: 30}
+          - {usage_date: 2026-07-01, project_id: B, basis: 10}
+      - input: ref('usage_drivers')
+        rows:
+          - {usage_date: 2026-07-01, driver_metric: vcpu_hours, project_id: A, quantity: 1}
+          - {usage_date: 2026-07-01, driver_metric: vcpu_hours, project_id: C, quantity: 3}
+    expect:
+      rows:
+        - {line_item_id: L1, project_id: A, allocated_cost: 3.34}
+        - {line_item_id: L1, project_id: B, allocated_cost: 3.33}
+        - {line_item_id: L1, project_id: C, allocated_cost: 3.33}
+        - {line_item_id: L2, project_id: A, allocated_cost: 10}
+        - {line_item_id: L2, project_id: C, allocated_cost: 30}
+        - {line_item_id: L3, project_id: A, allocated_cost: 48.15}
+        - {line_item_id: L3, project_id: B, allocated_cost: 14.81}
+        - {line_item_id: L3, project_id: C, allocated_cost: 37.04}
+        - {line_item_id: L4, project_id: A, allocated_cost: 0.6}
+        - {line_item_id: L4, project_id: B, allocated_cost: 0.4}
