@@ -40,7 +40,10 @@ dbt/                     โปรเจกต์ dbt-duckdb (staging → interm
 docs/decisions/          บันทึกการตัดสินใจ (เช่น ทำไมใช้ effective cost)
 scripts/simulate_restatement.sh  จำลอง AWS เขียนทับเดือนเดิม แล้วตรวจว่ายอดไม่ซ้ำ
 scripts/gen_usage_drivers.py     สร้าง dbt/seeds/usage_drivers.csv (ปริมาณใช้ EKS ต่อโปรเจกต์ ใช้หาร shared cost)
-dashboard/ streamlit_app/   (ยังไม่สร้าง จะมาใน Phase 4)
+scripts/export_marts.py          ส่งออก marts เป็น Parquet ให้ Evidence
+dashboard/               แดชบอร์ด Evidence (pages/*.md = SQL + กราฟ) ดู dashboard/README.md
+streamlit_app/           Streamlit 2 หน้า: ตั้งกฎการหาร, ตรวจย้อนกลับ (lib.py = ตรวจกฎ/รัน dbt)
+tests/                   pytest ของ Streamlit (ตรวจกฎ + เปิดทุกหน้าแบบ headless)
 ```
 
 ## คำสั่งที่ใช้บ่อย
@@ -52,6 +55,9 @@ python3 scripts/gen_cur2.py --start 2026-10-01 --days 31 --seed 7 --out data/cur
 duckdb -c "SELECT count(*) FROM 'data/cur2_sample.parquet'"
 cd dbt && dbt build --profiles-dir .                # build + test ทั้งหมด
 bash scripts/simulate_restatement.sh               # ทดสอบ restatement (รันจาก root)
+streamlit run streamlit_app/Home.py                # Streamlit (หลัง dbt build)
+pytest -q tests                                    # test ของ Streamlit
+python3 scripts/export_marts.py && cd dashboard && npm run sources && npm run dev   # Evidence
 ```
 
 ## ข้อเท็จจริงเกี่ยวกับข้อมูล (สำคัญเวลาเขียน query)

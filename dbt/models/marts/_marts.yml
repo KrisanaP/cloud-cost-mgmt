@@ -66,3 +66,19 @@ models:
 
   - name: fct_project_cost_allocated_monthly
     description: billing period × project × cost_source (direct หรือ rule_id ที่ส่งเงินมา)
+
+  - name: mart_project_cost_monthly
+    description: "แดชบอร์ด Overview: เดือน × โปรเจกต์ direct / shared / total + เทียบเดือนก่อน"
+    data_tests:
+      - dbt_utils_free_unique_combination:
+          arguments:
+            columns: [billing_period, project_id]
+
+  - name: mart_project_cost_daily
+    description: "แดชบอร์ด: วัน × โปรเจกต์ × direct/shared สำหรับกราฟแนวโน้ม"
+
+  - name: mart_attribution_coverage
+    description: "แดชบอร์ด Coverage: ต้นทุน unattributed ต่อ เดือน × account × service × resource"
+
+  - name: mart_allocation_audit
+    description: "Streamlit หน้าตรวจย้อนกลับ: โปรเจกต์ × บรรทัดบิล × กฎ พร้อม attribution_source"
