@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  - name: cur
+    description: ไฟล์ AWS CUR 2.0 (ตอนนี้เป็นข้อมูลจำลองใน data/)
+    tables:
+      - name: cur2_raw
+        description: >
+          CUR 2.0 จำลอง ก.ค.–ก.ย. 2026, รายวัน, UTC, USD.
+          ตำแหน่งไฟล์ตั้งได้ด้วย var `cur_path` (ค่าเริ่มต้น ../data/cur2_sample.parquet)
+          เพื่อจำลอง restatement ได้โดยชี้ไปไฟล์เดือนที่ AWS เขียนทับ
+        meta:
+          external_location: "read_parquet('{{ var(\"cur_path\", \"../data/cur2_sample.parquet\") }}')"
+        columns:
+          - name: identity_line_item_id
+            data_tests:
+              - not_null
+          - name: line_item_usage_start_date
+            data_tests:
+              - not_null

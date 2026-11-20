@@ -36,7 +36,10 @@ data/cur2_sample.parquet ข้อมูล CUR 2.0 จำลอง (ก.ค.–
 data/cur2_sample.csv.gz  ข้อมูลเดียวกันแบบ CSV gzip (รูปแบบที่ AWS ส่งจริงอีกแบบ)
 scripts/gen_cur2.py      generator — แก้ CATALOG / quantity() เพื่อเพิ่มบริการหรือเรื่องผิดปกติ
 exercises/phase1.sql     โจทย์ SQL วอร์มอัป (ทางเลือก, เติมคำตอบเอง)
-dbt/ dashboard/ streamlit_app/   (ยังไม่สร้าง จะมาใน Phase 0–4)
+dbt/                     โปรเจกต์ dbt-duckdb (staging → intermediate → marts, tests/ กระทบยอด)
+docs/decisions/          บันทึกการตัดสินใจ (เช่น ทำไมใช้ effective cost)
+scripts/simulate_restatement.sh  จำลอง AWS เขียนทับเดือนเดิม แล้วตรวจว่ายอดไม่ซ้ำ
+dashboard/ streamlit_app/   (ยังไม่สร้าง จะมาใน Phase 4)
 ```
 
 ## คำสั่งที่ใช้บ่อย
@@ -46,6 +49,8 @@ pip install -r requirements.txt
 python3 scripts/gen_cur2.py                         # สร้างข้อมูลใหม่ (seed 42 = ได้ข้อมูลเดิม)
 python3 scripts/gen_cur2.py --start 2026-10-01 --days 31 --seed 7 --out data/cur2_oct
 duckdb -c "SELECT count(*) FROM 'data/cur2_sample.parquet'"
+cd dbt && dbt build --profiles-dir .                # build + test ทั้งหมด
+bash scripts/simulate_restatement.sh               # ทดสอบ restatement (รันจาก root)
 ```
 
 ## ข้อเท็จจริงเกี่ยวกับข้อมูล (สำคัญเวลาเขียน query)

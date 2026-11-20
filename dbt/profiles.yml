@@ -1,0 +1,9 @@
+# เก็บ profile ไว้ใน repo เลย เพราะ DuckDB เป็นไฟล์ในเครื่อง ไม่มีรหัสผ่าน
+# รันจากโฟลเดอร์ dbt/:  dbt build
+cloud_cost:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DBT_DUCKDB_PATH', 'warehouse.duckdb') }}"
+      threads: 4

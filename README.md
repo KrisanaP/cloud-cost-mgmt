@@ -18,6 +18,12 @@ duckdb -c "SELECT line_item_product_code, round(sum(line_item_unblended_cost),2)
            FROM 'data/cur2_sample.parquet' GROUP BY 1 ORDER BY 2 DESC LIMIT 10"
 ```
 
+รัน dbt (เฟส 0 ขึ้นไป):
+
+```bash
+cd dbt && dbt build --profiles-dir .
+```
+
 ใช้กับ Claude Code: เปิดเทอร์มินัลในโฟลเดอร์นี้แล้วพิมพ์ `claude` — บริบทของโปรเจกต์อยู่ใน `CLAUDE.md`
 
 ## ข้อมูล

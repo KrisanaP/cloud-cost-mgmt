@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: stg_cur__line_items
+    description: CUR 2.0 line items ที่ cast type และตั้งชื่อคอลัมน์ใหม่แล้ว 1 แถว = 1 line item
+    columns:
+      - name: line_item_id
+        data_tests: [unique, not_null]
+      - name: billing_period
+        data_tests: [not_null]
+      - name: line_item_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [Usage, SavingsPlanCoveredUsage, SavingsPlanNegation, SavingsPlanRecurringFee,
+                         DiscountedUsage, RIFee, Tax, Fee, Credit, Refund]
+      - name: currency_code
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [USD]
+
+  - name: stg_cur__resource_tags
+    description: tag แบบยาว 1 แถว = 1 line item × 1 tag key (key/value ถูก normalize เป็นตัวเล็กและตัดช่องว่าง)
+    columns:
+      - name: line_item_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_cur__line_items')
+                field: line_item_id
+      - name: tag_key
+        data_tests: [not_null]
+      - name: tag_value
+        data_tests: [not_null]

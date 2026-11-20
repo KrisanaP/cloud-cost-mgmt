@@ -102,10 +102,10 @@ MVP ที่เอาไปโชว์ได้ = Phase 0–4 ราว 10–1
 
 dbt tests ที่ต้องมี
 
-- [ ] `unique` + `not_null` บน `identity_line_item_id`
-- [ ] `accepted_values` ของ `line_item_line_item_type`
-- [ ] custom test `assert_totals_match_raw` ต่อ billing period (ยอมให้ต่างไม่เกิน $0.01)
-- [ ] จำลอง restatement: generate เดือนเดิมด้วย seed ใหม่ แล้วรันซ้ำ ยอดต้องไม่ซ้ำ
+- [x] `unique` + `not_null` บน `identity_line_item_id`
+- [x] `accepted_values` ของ `line_item_line_item_type`
+- [x] custom test `assert_totals_match_raw` ต่อ billing period (ยอมให้ต่างไม่เกิน $0.01)
+- [x] จำลอง restatement: generate เดือนเดิมด้วย seed ใหม่ แล้วรันซ้ำ ยอดต้องไม่ซ้ำ
 
 ## Phase 2 — Tag ย้อนหลัง (SCD2) (2–3 สัปดาห์)
 
