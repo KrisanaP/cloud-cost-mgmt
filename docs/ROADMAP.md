@@ -140,10 +140,10 @@ dbt tests ที่ต้องมี
 
 dbt tests ที่ต้องมี
 
-- [ ] custom test `assert_no_overlapping_ranges` ต่อ resource
-- [ ] จำนวนแถวก่อนและหลัง attribution เท่ากัน
-- [ ] ยอดรวมก่อนและหลัง attribution เท่ากัน
-- [ ] `relationships` ทุก `project_id` ต้องมีใน `projects`
+- [x] custom test `assert_no_overlapping_ranges` ต่อ resource
+- [x] จำนวนแถวก่อนและหลัง attribution เท่ากัน
+- [x] ยอดรวมก่อนและหลัง attribution เท่ากัน
+- [x] `relationships` ทุก `project_id` ต้องมีใน `projects`
 
 ## Phase 3 — หารต้นทุนที่ใช้ร่วมกัน (3–4 สัปดาห์)
 

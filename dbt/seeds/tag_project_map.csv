@@ -1,0 +1,13 @@
+tag_key,tag_value,project_id
+user_service,storefront,storefront
+user_service,mobile-bff,mobile-bff
+user_service,payment-api,payment-api
+user_service,ledger,ledger
+user_service,search-api,search-api
+user_service,indexer,indexer
+user_service,analytics,analytics
+user_service,etl,etl
+user_service,ml,ml
+user_service,sec-tooling,sec-tooling
+user_service,eks-platform,eks-platform
+user_service,shared-infra,shared-infra

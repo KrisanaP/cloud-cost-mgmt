@@ -13,3 +13,71 @@ models:
           - accepted_values:
               arguments:
                 values: [direct, commitment_offset, commitment_unused, tax, support, credit, fee]
+
+  - name: int_cost__line_item_tags
+    description: tag แบบยาวของทุกเดือนใน fct_cost_line_item (normalize แล้ว)
+
+  - name: int_cost__attributed
+    description: line item + project_id + attribution_source (override > tag > account_default > unattributed)
+    columns:
+      - name: line_item_id
+        data_tests: [unique, not_null]
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+      - name: attribution_source
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [override, tag, account_default, unattributed]
+
+unit_tests:
+  - name: attribution_rules_and_date_ranges
+    description: >
+      สถานการณ์จำลอง: (a) ย้ายเจ้าของกลางเดือน (b) ไม่มี tag เลย ตกไป account default
+      (c) tag มาช้า แก้ด้วย override ย้อนหลัง (d) ไม่มีอะไรเลย = unattributed
+      (e) override ชนะ tag (f) ช่วง [from, to) ไม่รวมวันจบ
+    model: int_cost__attributed
+    given:
+      - input: ref('fct_cost_line_item')
+        rows:
+          # (a) r-move: เป็นของ storefront ตาม tag, ย้ายไป search-api ตั้งแต่ 2026-08-15
+          - {line_item_id: a1, resource_id: r-move, account_id: "222", usage_date: 2026-08-14, effective_cost: 10, resource_tags_json: '{"user_service": "storefront"}'}
+          - {line_item_id: a2, resource_id: r-move, account_id: "222", usage_date: 2026-08-15, effective_cost: 10, resource_tags_json: '{"user_service": "storefront"}'}
+          # (b) ไม่มี tag ใน account ที่มี default
+          - {line_item_id: b1, resource_id: r-sec, account_id: "777", usage_date: 2026-07-01, effective_cost: 5, resource_tags_json: '{}'}
+          # (c) tag มาช้า: ก.ค. ไม่มี tag, ก.ย. มี tag; override ย้อนหลังครอบ ก.ค.
+          - {line_item_id: c1, resource_id: r-late, account_id: "222", usage_date: 2026-07-10, effective_cost: 7, resource_tags_json: '{}'}
+          - {line_item_id: c2, resource_id: r-late, account_id: "222", usage_date: 2026-09-10, effective_cost: 7, resource_tags_json: '{" User_Service ": " ML "}'}
+          # (d) ไม่มี tag ไม่มี override ไม่มี default
+          - {line_item_id: d1, resource_id: r-orphan, account_id: "222", usage_date: 2026-07-01, effective_cost: 3, resource_tags_json: '{}'}
+          # (f) วันจบของช่วง override ไม่นับ -> กลับไปใช้ tag
+          - {line_item_id: f1, resource_id: r-late, account_id: "222", usage_date: 2026-09-01, effective_cost: 7, resource_tags_json: '{"user_service": "ml"}'}
+      - input: ref('int_cost__line_item_tags')
+        rows:
+          - {line_item_id: a1, tag_key: user_service, tag_value: storefront}
+          - {line_item_id: a2, tag_key: user_service, tag_value: storefront}
+          - {line_item_id: c2, tag_key: user_service, tag_value: ml}
+          - {line_item_id: f1, tag_key: user_service, tag_value: ml}
+      - input: ref('tag_project_map')
+        rows:
+          - {tag_key: user_service, tag_value: storefront, project_id: storefront}
+          - {tag_key: user_service, tag_value: ml, project_id: ml}
+      - input: ref('resource_ownership')
+        rows:
+          - {resource_id: r-move, project_id: search-api, valid_from: 2026-08-15, valid_to: null, reason: handover}
+          - {resource_id: r-late, project_id: ml, valid_from: 2026-07-01, valid_to: 2026-09-01, reason: late tag backfill}
+      - input: ref('account_default_project')
+        rows:
+          - {account_id: "777", project_id: sec-tooling, valid_from: 2026-01-01, valid_to: null}
+    expect:
+      rows:
+        - {line_item_id: a1, project_id: storefront,   attribution_source: tag}
+        - {line_item_id: a2, project_id: search-api,   attribution_source: override}
+        - {line_item_id: b1, project_id: sec-tooling,  attribution_source: account_default}
+        - {line_item_id: c1, project_id: ml,           attribution_source: override}
+        - {line_item_id: c2, project_id: ml,           attribution_source: tag}
+        - {line_item_id: d1, project_id: unattributed, attribution_source: unattributed}
+        - {line_item_id: f1, project_id: ml,           attribution_source: tag}

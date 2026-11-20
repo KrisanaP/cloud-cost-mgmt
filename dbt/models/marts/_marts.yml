@@ -28,3 +28,18 @@ models:
         data_tests: [not_null]
       - name: resource_key
         data_tests: [not_null]
+
+  - name: fct_cost_attributed
+    description: >
+      1 แถว = 1 line item พร้อมเจ้าของโปรเจกต์ (Phase 2). table เต็มทุกครั้ง เพราะแก้ ownership ย้อนหลังต้องคิดใหม่ทุกเดือน
+    columns:
+      - name: line_item_id
+        data_tests: [unique, not_null]
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+
+  - name: fct_project_cost_monthly
+    description: billing period × project × cost_class × attribution_source

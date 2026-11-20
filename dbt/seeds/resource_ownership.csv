@@ -1,0 +1,2 @@
+resource_id,project_id,valid_from,valid_to,source,changed_by,changed_at,reason
+arn:aws:dynamodb:ap-southeast-1:333333333333:table/storefront-table0,mobile-bff,2026-08-15,,manual,lulu,2026-11-20,ตัวอย่าง: ทีม mobile รับตารางนี้ไปดูแลตั้งแต่ 15 ส.ค.

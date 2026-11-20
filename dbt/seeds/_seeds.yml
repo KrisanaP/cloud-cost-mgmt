@@ -1,0 +1,66 @@
+version: 2
+
+seeds:
+  - name: projects
+    description: รายชื่อโปรเจกต์ (1 โปรเจกต์ = 1 service ตาม tag user_service) และทีมเจ้าของ, is_shared = จะถูกหารต่อใน Phase 3
+    config:
+      column_types: {project_id: varchar, cost_center: varchar, is_shared: boolean}
+    columns:
+      - name: project_id
+        data_tests: [unique, not_null]
+
+  - name: tag_project_map
+    description: map tag (หลัง normalize เป็นตัวเล็ก) -> project
+    config:
+      column_types: {tag_key: varchar, tag_value: varchar, project_id: varchar}
+    columns:
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+    data_tests:
+      - dbt_utils_free_unique_combination:
+          arguments:
+            columns: [tag_key, tag_value]
+
+  - name: account_default_project
+    description: เจ้าของตั้งต้นต่อ account เมื่อไม่มี override และไม่มี tag ช่วงวัน [valid_from, valid_to)
+    config:
+      column_types: {account_id: varchar, valid_from: date, valid_to: date}
+    columns:
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+    data_tests:
+      - assert_no_overlapping_ranges:
+          arguments:
+            key: account_id
+
+  - name: resource_ownership
+    description: >
+      SCD2 override เจ้าของ resource ช่วงวัน [valid_from, valid_to) (effective date)
+      changed_at = วันที่เรารู้/แก้ (record date) ประวัติการแก้เก็บใน snapshot snap_resource_ownership
+    config:
+      column_types: {resource_id: varchar, project_id: varchar, valid_from: date, valid_to: date, changed_at: date}
+    columns:
+      - name: resource_id
+        data_tests: [not_null]
+      - name: valid_from
+        data_tests: [not_null]
+      - name: source
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [manual, tag_backfill, ai_suggestion]
+      - name: project_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('projects'), field: project_id}
+    data_tests:
+      - assert_no_overlapping_ranges:
+          arguments:
+            key: resource_id

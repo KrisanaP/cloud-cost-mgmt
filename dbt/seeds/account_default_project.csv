@@ -1,0 +1,3 @@
+account_id,account_name,project_id,valid_from,valid_to,reason
+777777777777,acme-security,sec-tooling,2026-01-01,,บัญชีนี้ใช้กับงาน security อย่างเดียว
+666666666666,acme-network,shared-infra,2026-01-01,,บัญชีกลางของ network ทุกอย่างเป็น shared
