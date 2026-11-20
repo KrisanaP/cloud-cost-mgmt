@@ -1,0 +1,12 @@
+snapshots:
+  - name: snap_resource_ownership
+    description: >
+      ประวัติการแก้ seed resource_ownership (record date) แยกจาก valid_from/valid_to (effective date)
+      ตอบได้ว่า "ใครเปลี่ยนเจ้าของ resource นี้เมื่อไร ตัวเลขเดือนก่อนถึงเปลี่ยน"
+      ทุกครั้งที่ dbt build แล้ว seed ต่างจากเดิม จะได้แถวใหม่พร้อม dbt_valid_from
+    relation: ref('resource_ownership')
+    config:
+      unique_key: [resource_id, valid_from]
+      strategy: check
+      check_cols: all
+      hard_deletes: new_record

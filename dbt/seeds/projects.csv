@@ -1,0 +1,14 @@
+project_id,project_name,owner_team,cost_center,is_shared
+storefront,Storefront (web),web,CC-1003,false
+mobile-bff,Mobile backend-for-frontend,mobile,CC-1004,false
+payment-api,Payment API,payments,CC-1001,false
+ledger,Ledger,payments,CC-1001,false
+search-api,Search API,search,CC-1002,false
+indexer,Search indexer,search,CC-1002,false
+analytics,Analytics,data,CC-3001,false
+etl,ETL pipelines,data,CC-3001,false
+ml,Machine learning,data,CC-3001,false
+sec-tooling,Security tooling,security,CC-4001,false
+eks-platform,EKS platform (shared clusters),platform,CC-2001,true
+shared-infra,Shared infrastructure (network etc.),platform,CC-2001,true
+unattributed,Unattributed (no owner found),,,false
