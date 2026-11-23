@@ -25,23 +25,9 @@ allocated total equals the bill to the cent, every month.
 
 ## Architecture
 
-```
-data/cur2_sample.parquet          simulated CUR 2.0 (Jul–Sep 2026, 7 accounts, 28k line items)
-        │
-        ▼  dbt (DuckDB)
-staging        stg_cur__line_items, stg_cur__resource_tags        typed, renamed, tags exploded + normalized
-intermediate   int_cost__effective                                 amortized cost + cost_class
-               int_cost__attributed                                override > tag > account default > unattributed
-               int_alloc__pools / __shares                         rule matching, step-down basis, largest remainder
-marts          fct_cost_line_item (incremental)  fct_cost_attributed  fct_cost_allocated (line item × project)
-               mart_project_cost_monthly / _daily, mart_attribution_coverage, mart_allocation_audit
-seeds          projects, tag_project_map, resource_ownership (SCD2), account_default_project,
-               allocation_rules (+ targets), usage_drivers
-snapshot       snap_resource_ownership                             who changed ownership, and when
-        │
-        ├──▶ Evidence dashboard (dashboard/)    overview, project detail, unattributed coverage
-        └──▶ Streamlit (streamlit_app/)         edit allocation rules with preview; audit any dollar back to bill lines
-```
+
+
+PNG version: [docs/img/architecture.png](docs/img/architecture.png) · source: [docs/architecture.mmd](docs/architecture.mmd) · model-level lineage: [dbt docs](https://krisanap.github.io/cloud-cost-mgmt/dbt-docs/)
 
 No API layer: dbt writes report tables, the dashboard and Streamlit read them directly.
 
