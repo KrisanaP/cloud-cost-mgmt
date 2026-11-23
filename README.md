@@ -11,7 +11,7 @@ A mini cloud cost management tool (in the spirit of Datadog CCM) built on **dbt 
 AWS Cost and Usage Report (CUR 2.0). Every dollar on the bill ends up on a project, and a test proves the
 allocated total equals the bill to the cent, every month.
 
-[ภาษาไทย](README.th.md) · [Roadmap](docs/ROADMAP.md) · [Design decisions](docs/decisions/) · [Articles](docs/articles/)
+[ภาษาไทย](README.th.md) · [Data dictionary](docs/data-dictionary.md) · [Lineage](docs/lineage.md) · [Tests](docs/testing.md) · [Roadmap](docs/ROADMAP.md) · [Design decisions](docs/decisions/) · [Articles](docs/articles/)
 
 ## The problem
 
@@ -87,6 +87,8 @@ PNG version: [docs/img/architecture.png](docs/img/architecture.png) · source: [
 No API layer: dbt writes report tables, the dashboard and Streamlit read them directly.
 
 ## What the tests guarantee
+
+Full list with what each test catches: [docs/testing.md](docs/testing.md).
 
 - Raw file = staging = fact = daily mart, per billing period, for unblended, net and effective cost
 - Every Savings Plan / RI fee = cost moved to usage + unused part
