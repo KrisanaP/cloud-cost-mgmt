@@ -9,6 +9,12 @@
 - สิ่งที่คุยกันมาก่อนหน้า: [`docs/HANDOFF.md`](docs/HANDOFF.md)
 - เริ่มที่: Phase 0 ใน roadmap (วอร์ม SQL ด้วย [`exercises/phase1.sql`](exercises/phase1.sql) ได้ถ้าอยาก)
 
+## Architecture
+
+![architecture](docs/img/architecture.png)
+
+แผนภาพ Mermaid แบบแก้ได้อยู่ที่ [](docs/architecture.mmd) (README อังกฤษแสดงแบบ Mermaid)
+
 ## Quickstart
 
 ```bash

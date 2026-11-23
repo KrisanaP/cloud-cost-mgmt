@@ -10,6 +10,9 @@ group by 1
 -- บรรทัดที่หาร: ต้องเท่ายอดเดิมที่ปัดถึง precision; บรรทัดที่ไม่หาร: ต้องเท่ายอดเดิมเป๊ะ
 having abs(
     case when bool_or(allocation_status = 'allocated')
-         then round(max(line_effective_cost), {{ precision }})
+         -- ปัดแบบเดียวกับ int_alloc__shares (คูณเป็นหน่วยก่อนแล้ว round) ไม่ใช้ round(x, n)
+         -- เพราะ DuckDB 2.0 เปลี่ยนวิธีปัด round(double, n) ที่ค่ากึ่งกลาง ทำให้ต่างกัน 1 หน่วย
+         then sign(max(line_effective_cost))
+              * round(abs(max(line_effective_cost)) * pow(10, {{ precision }})) / pow(10, {{ precision }})
          else max(line_effective_cost) end
     - sum(allocated_cost)) > 1e-9
