@@ -25,7 +25,62 @@ allocated total equals the bill to the cent, every month.
 
 ## Architecture
 
+```mermaid
+flowchart TB
+    CUR[("<b>AWS CUR 2.0</b> (simulated)<br/>data/cur2_sample.parquet<br/>Jul–Sep 2026 · 7 accounts · 28k line items")]
 
+    subgraph DBT["dbt-duckdb  ·  warehouse.duckdb"]
+        direction TB
+        STG["<b>staging</b><br/>stg_cur__line_items · stg_cur__resource_tags"]
+        EFF["<b>effective cost</b> · amortize SP / RI fees onto usage<br/>int_cost__effective → fct_cost_line_item (incremental)"]
+        ATT["<b>attribution</b> · override › tag › account default<br/>int_cost__attributed → fct_cost_attributed"]
+        ALC["<b>shared-cost allocation</b> · step-down, largest remainder<br/>int_alloc__pools / direct_basis / shares → fct_cost_allocated"]
+        MART["<b>marts</b><br/>mart_project_cost_monthly / daily<br/>mart_attribution_coverage · mart_allocation_audit"]
+        STG --> EFF --> ATT --> ALC --> MART
+
+        SEED[/"<b>seeds</b><br/>projects · tag_project_map<br/>account_default_project"/] --> ATT
+        OWN[/"<b>resource_ownership</b><br/>SCD2 valid_from / valid_to"/] --> ATT
+        OWN -.-> SNAP[("snap_resource_ownership<br/>who changed it, when")]
+        RULES[/"<b>allocation_rules</b> + targets<br/>versioned"/] --> ALC
+        USE[/"<b>usage_drivers</b><br/>EKS vCPU-hours"/] --> ALC
+        MART -.- TEST{{"<b>78 dbt tests</b><br/>allocated total = bill"}}
+    end
+
+    CUR --> STG
+
+    subgraph OUT["Consumers · no API layer"]
+        direction LR
+        EVI["<b>Evidence dashboard</b><br/>overview · project detail · coverage<br/>(via export_marts.py → Parquet)"]
+        ST1["<b>Streamlit · rules editor</b><br/>edits allocation_rules seed<br/>reruns dbt to preview impact"]
+        ST2["<b>Streamlit · audit trail</b><br/>any dollar back to bill lines"]
+    end
+
+    MART --> EVI
+    MART --> ST1
+    MART --> ST2
+
+    subgraph CI["GitHub Actions"]
+        direction LR
+        W1["<b>dbt.yml</b><br/>dbt build + restatement test"]
+        W2["<b>dashboard.yml</b><br/>dbt build · pytest · dbt docs · Evidence"]
+    end
+    EVI --> W2
+    W2 --> PAGES["<b>GitHub Pages</b><br/>dashboard + /dbt-docs/"]
+
+    classDef src fill:#eef2ff,stroke:#6366f1,color:#1e1b4b
+    classDef core fill:#ecfdf5,stroke:#059669,color:#064e3b
+    classDef seed fill:#fffbeb,stroke:#d97706,color:#78350f
+    classDef app fill:#fdf2f8,stroke:#db2777,color:#500724
+    classDef ci fill:#f1f5f9,stroke:#475569,color:#0f172a
+    class CUR src
+    class STG,EFF,ATT,ALC,MART,SNAP,TEST core
+    class SEED,OWN,RULES,USE seed
+    class EVI,ST1,ST2 app
+    class W1,W2,PAGES ci
+    style DBT fill:#fafafa,stroke:#a3a3a3
+    style OUT fill:#fafafa,stroke:#a3a3a3
+    style CI fill:#fafafa,stroke:#a3a3a3
+```
 
 PNG version: [docs/img/architecture.png](docs/img/architecture.png) · source: [docs/architecture.mmd](docs/architecture.mmd) · model-level lineage: [dbt docs](https://krisanap.github.io/cloud-cost-mgmt/dbt-docs/)
 
