@@ -34,6 +34,7 @@ docs/HANDOFF.md          ประวัติการคุย, การต�
 docs/archive/            แผนเดิม (v1)
 data/cur2_sample.parquet ข้อมูล CUR 2.0 จำลอง (ก.ค.–ก.ย. 2026, 28k แถว, 63 คอลัมน์)
 data/cur2_sample.csv.gz  ข้อมูลเดียวกันแบบ CSV gzip (รูปแบบที่ AWS ส่งจริงอีกแบบ)
+data/focus/              ข้อมูลจริงชุดที่สอง: FOCUS 1.0 Sample Data (CC BY 4.0) ใช้ BilledCost, tag ถูกสุ่ม ดู README ในโฟลเดอร์
 scripts/gen_cur2.py      generator — แก้ CATALOG / quantity() เพื่อเพิ่มบริการหรือเรื่องผิดปกติ
 exercises/phase1.sql     โจทย์ SQL วอร์มอัป (ทางเลือก, เติมคำตอบเอง)
 dbt/                     โปรเจกต์ dbt-duckdb (staging → intermediate → marts, tests/ กระทบยอด)

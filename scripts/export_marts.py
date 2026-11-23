@@ -19,6 +19,8 @@ TABLES = [
     "mart_attribution_coverage",
     "mart_allocation_audit",
     "projects",
+    "fct_focus_cost_daily",
+    "mart_focus_tag_coverage",
 ]
 
 if not os.path.exists(DB):

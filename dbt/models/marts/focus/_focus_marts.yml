@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: fct_focus_cost_daily
+    description: >
+      FOCUS sample รายวัน grain = provider × sub account × service × charge category × วัน
+      ยอดรวมต้องเท่าไฟล์ดิบ (คุมด้วย assert_focus_totals_match_raw)
+    columns:
+      - name: provider_name
+        data_tests: [not_null]
+      - name: charge_date
+        data_tests: [not_null]
+      - name: billed_cost
+        data_tests: [not_null]
+
+  - name: mart_focus_tag_coverage
+    description: >
+      สัดส่วนต้นทุน Usage ที่มี tag แยก provider × sub account จากข้อมูลจริง
+      (ค่า tag ถูกสุ่มตอนปิดชื่อ ดูได้แค่ว่ามี/ไม่มี tag)
+    columns:
+      - name: provider_name
+        data_tests: [not_null]
+      - name: tagged_cost_pct
+        description: tagged billed / usage billed (null ถ้ายอด usage = 0)

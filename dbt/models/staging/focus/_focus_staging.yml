@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_focus__charges
+    description: >
+      FOCUS 1.0 Sample Data (FinOps Foundation, CC BY 4.0) ที่ cast type แล้ว 1 แถว = 1 charge
+      ใช้ billed_cost เป็นตัวหลัก เพราะ EffectiveCost ของ AWS/Oracle ในชุดนี้ถูกปัดเป็นดอลลาร์เต็ม
+    columns:
+      - name: charge_id
+        data_tests: [unique, not_null]
+      - name: provider_name
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [AWS, Microsoft, Oracle, Google Cloud]
+      - name: charge_category
+        description: ทำให้สะกดตาม FOCUS 1.0 (ต้นทางมี usage ตัวเล็กจาก GCP)
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Usage, Purchase, Tax, Credit, Adjustment]
+      - name: billing_currency
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [USD]
+      - name: billed_cost
+        data_tests: [not_null]
+      - name: charge_date
+        data_tests: [not_null]
