@@ -36,3 +36,8 @@ cd dbt && dbt build --profiles-dir .
 
 `data/cur2_sample.*` เป็นข้อมูลจำลอง (ไม่ใช่บิลจริง) สร้างจาก `scripts/gen_cur2.py`
 ช่วง 1 ก.ค. – 30 ก.ย. 2026, 7 บัญชี, 50+ บริการ AWS ราคาเป็นค่าประมาณ
+
+ข้อมูลจริงชุดที่สองอยู่ใน `data/focus/`: FOCUS 1.0 Sample Data ของ FinOps Foundation 100k แถว
+(AWS/Azure/OCI ที่ปิดชื่อแล้ว ก.ย. 2024, CC BY 4.0) ผ่าน `stg_focus__charges` → `fct_focus_cost_daily` /
+`mart_focus_tag_coverage` และกระทบยอดกับไฟล์ดิบด้วย `assert_focus_totals_match_raw`
+tag ในชุดนี้ถูกสุ่มและมีเดือนเดียว จึงใช้ทำรายงานหลาย cloud และดูความครอบคลุมของ tag เท่านั้น ดู `data/focus/README.md`

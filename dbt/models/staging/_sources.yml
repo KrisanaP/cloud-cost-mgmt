@@ -18,3 +18,18 @@ sources:
           - name: line_item_usage_start_date
             data_tests:
               - not_null
+
+  - name: focus
+    description: >
+      FOCUS 1.0 Sample Data ของ FinOps Foundation (CC BY 4.0) ข้อมูลจริงที่ปิดชื่อแล้ว ก.ย. 2024
+      AWS/Azure/OCI/GCP รายชั่วโมง เป็นข้อมูลชุดที่สอง แยกจาก CUR จำลอง ดู data/focus/README.md
+    tables:
+      - name: focus_raw
+        description: >
+          100,000 แถวแรกของ sample (ทุกคอลัมน์เป็นข้อความ ให้ staging cast เอง)
+          ตำแหน่งไฟล์ตั้งได้ด้วย var `focus_path`
+        meta:
+          external_location: "read_parquet('{{ var(\"focus_path\", \"../data/focus/focus_sample_100k.parquet\") }}')"
+        columns:
+          - name: Id
+            data_tests: [unique, not_null]

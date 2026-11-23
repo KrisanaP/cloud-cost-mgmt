@@ -104,7 +104,7 @@ Full list with what each test catches: [docs/testing.md](docs/testing.md).
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-cd dbt && dbt build --profiles-dir . && cd ..       # models + 78 data/unit tests
+cd dbt && dbt build --profiles-dir . && cd ..       # models + data/unit tests
 bash scripts/simulate_restatement.sh                 # AWS rewrites a month; totals must not double
 pytest -q tests                                      # Streamlit rule validation + page smoke tests
 streamlit run streamlit_app/Home.py                  # rules editor + audit trail
@@ -125,6 +125,14 @@ cd dashboard && npm install && npm run sources && npm run dev
 (1 Jul – 30 Sep 2026, 7 accounts, 50+ AWS services, approximate prices). It deliberately contains a few
 real-world problems to find. Usage drivers for the shared EKS cluster are simulated by
 `scripts/gen_usage_drivers.py`; in production they would come from CloudWatch Container Insights or OpenCost.
+
+A second, **real** dataset lives in `data/focus/`: 100k rows of the FinOps Foundation
+[FOCUS 1.0 Sample Data](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS-Sample-Data)
+(anonymized AWS, Azure and OCI billing, Sep 2024, CC BY 4.0, © FinOps Foundation). It runs through
+`stg_focus__charges` → `fct_focus_cost_daily` / `mart_focus_tag_coverage`, is reconciled to the raw file
+by `assert_focus_totals_match_raw`, and has its own dashboard page (`dashboard/pages/focus.md`).
+Its tags are randomized and it covers one month, so it is used for multi-cloud reporting and tag coverage,
+not for SCD2 attribution or allocation. See `data/focus/README.md` for caveats.
 
 ## Stack
 

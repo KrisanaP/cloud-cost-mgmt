@@ -252,7 +252,7 @@ Streamlit เป็นงาน frontend ที่ Claude ช่วยเขี�
 | AI เดาเจ้าของ resource | ให้ LLM เดาโปรเจกต์ของ resource ที่ไม่มี tag จากชื่อ, account, resource ข้างเคียง → แสดงใน Streamlit ให้คนกดยืนยันก่อนเขียนลง `resource_ownership` | ต่อจาก Phase 2 ได้ทันที |
 | กระทบยอดเงินบาท | อัตราแลกเปลี่ยน, VAT, ใบแจ้งหนี้ของตัวแทนจำหน่าย | ปัญหาจริงของบริษัทไทย |
 | ข้อมูลจริงจาก AWS | เปิดบัญชีตัวเอง (ตั้ง budget alert ก่อน), CUR 2.0 → S3 → โหลดด้วย boto3/dlt อ่าน manifest | |
-| FOCUS / หลายคลาวด์ | map CUR → FOCUS ใช้ FOCUS Sandbox / sample data ทดสอบ | |
+| FOCUS / หลายคลาวด์ | map CUR → FOCUS ใช้ FOCUS Sandbox / sample data ทดสอบ | เริ่มแล้ว: โหลด FOCUS sample เข้า dbt (`data/focus/`) ยังไม่ได้ map CUR → FOCUS |
 | Kubernetes | OpenCost แบ่งค่า cluster ที่ใช้ร่วมกัน | ยากที่สุดในรายการ |
 | Anomaly + budget | rolling z-score, forecast สิ้นเดือน, แจ้งเตือน | ข้อมูลจำลองมีเรื่องผิดปกติฝังไว้ให้หา |
 
